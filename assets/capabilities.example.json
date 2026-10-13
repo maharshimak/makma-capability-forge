@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "project": "Example capability graph (illustrative, not verified against runtime)",
+  "capabilities": [
+    {
+      "id": "normalized-timeline",
+      "name": "Normalized Timeline",
+      "problem": "Convert arbitrary progress sources into deterministic progression",
+      "status": "HYPOTHESIS",
+      "maturity": "M0",
+      "inputs": ["raw_progress:number"],
+      "outputs": ["p:number[0,1]"],
+      "invariants": ["p is finite and within [0, 1]"],
+      "dependencies": [],
+      "failure_modes": ["invalid input -> reject or clamp by policy"],
+      "tests": ["bounds", "NaN", "monotonicity as applicable"],
+      "evidence": []
+    },
+    {
+      "id": "camera-rig",
+      "name": "Camera Rig",
+      "problem": "Produce single-owner camera targets from timeline positions",
+      "status": "HYPOTHESIS",
+      "maturity": "M0",
+      "inputs": ["p:number[0,1]", "keyframes:Keyframe[]"],
+      "outputs": ["camera_pose:Pose"],
+      "invariants": ["one active camera writer"],
+      "dependencies": ["normalized-timeline"],
+      "failure_modes": ["missing keyframe -> safe default"],
+      "tests": ["endpoints", "continuity", "ownership"],
+      "evidence": []
+    }
+  ],
+  "edges": [
+    {
+      "from": "camera-rig",
+      "to": "normalized-timeline",
+      "type": "DEPENDS_ON",
+      "contract": "camera-rig consumes bounded normalized progress"
+    }
+  ]
+}
